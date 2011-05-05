@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crateris", "src\crateris.vcproj", "{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libEGL", "src\libEGL.vcproj", "{757477C7-2F04-45B8-974B-24FB02DC48EB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1} = {EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGLES", "src\libGLES.vcproj", "{BC2D2AC1-3FE4-4CED-A1DF-4FC37F477EDE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1} = {EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGLESv2", "src\libGLESv2.vcproj", "{B912907B-7F65-4181-BA4F-C0B3F2613361}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1} = {EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}.Debug|Win32.Build.0 = Debug|Win32
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}.Release|Win32.ActiveCfg = Release|Win32
+		{EFA56F55-7AD3-4D21-A6A2-8F4A595755A1}.Release|Win32.Build.0 = Release|Win32
+		{757477C7-2F04-45B8-974B-24FB02DC48EB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{757477C7-2F04-45B8-974B-24FB02DC48EB}.Debug|Win32.Build.0 = Debug|Win32
+		{757477C7-2F04-45B8-974B-24FB02DC48EB}.Release|Win32.ActiveCfg = Release|Win32
+		{757477C7-2F04-45B8-974B-24FB02DC48EB}.Release|Win32.Build.0 = Release|Win32
+		{BC2D2AC1-3FE4-4CED-A1DF-4FC37F477EDE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BC2D2AC1-3FE4-4CED-A1DF-4FC37F477EDE}.Debug|Win32.Build.0 = Debug|Win32
+		{BC2D2AC1-3FE4-4CED-A1DF-4FC37F477EDE}.Release|Win32.ActiveCfg = Release|Win32
+		{BC2D2AC1-3FE4-4CED-A1DF-4FC37F477EDE}.Release|Win32.Build.0 = Release|Win32
+		{B912907B-7F65-4181-BA4F-C0B3F2613361}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B912907B-7F65-4181-BA4F-C0B3F2613361}.Debug|Win32.Build.0 = Debug|Win32
+		{B912907B-7F65-4181-BA4F-C0B3F2613361}.Release|Win32.ActiveCfg = Release|Win32
+		{B912907B-7F65-4181-BA4F-C0B3F2613361}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
