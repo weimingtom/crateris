@@ -1,0 +1,14 @@
+glob:*Debug/*
+glob:*.ncb
+glob:*.user
+glob:*.suo
+glob:*.idc
+glob:*.idb
+glob:*.obj
+glob:*.pdb
+glob:*.exp
+glob:*.manifest
+glob:*.htm
+glob:*.dep
+glob:*.dll
+glob:*.lib
