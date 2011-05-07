@@ -30,6 +30,7 @@
 #define CRATERIS_WGL_IMPL_H_INCLUDED_
 
 #include "EGL.h"
+#include <vector>
 
 namespace crateris {
 
@@ -113,8 +114,16 @@ public:
     void setCurrentContext(WinContext* ctx);
 
 private:
+    struct DisplayItem {
+        EGLNativeDisplayType hdc;
+        WinDisplay* dpy_;
+    };
+
+    bool validate(EGLDisplay dpy);
+
+private:
     EGLint error_;
-    WinDisplay* dpy_;
+    std::vector<DisplayItem> dpys_;
     DWORD tls_index_;
 };
 

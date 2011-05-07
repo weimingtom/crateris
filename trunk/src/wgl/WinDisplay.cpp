@@ -120,6 +120,9 @@ EGLBoolean WinDisplay::ChooseConfig(
             switch (type)
             {
             case EGL_DEPTH_SIZE:
+                if (value == EGL_DONT_CARE) {
+                    break;
+                }
                 if (value < 0) {
                     owner_->setError(EGL_BAD_ATTRIBUTE);
                     return EGL_FALSE;
@@ -127,6 +130,9 @@ EGLBoolean WinDisplay::ChooseConfig(
                 depth_size = (DWORD)value;
                 break;
             case EGL_STENCIL_SIZE:
+                if (value == EGL_DONT_CARE) {
+                    break;
+                }
                 if (value < 0) {
                     owner_->setError(EGL_BAD_ATTRIBUTE);
                     return EGL_FALSE;
@@ -134,6 +140,9 @@ EGLBoolean WinDisplay::ChooseConfig(
                 stencil_size = (DWORD)value;
                 break;
             case EGL_ALPHA_SIZE:
+                if (value == EGL_DONT_CARE) {
+                    break;
+                }
                 if (value < 0) {
                     owner_->setError(EGL_BAD_ATTRIBUTE);
                     return EGL_FALSE;

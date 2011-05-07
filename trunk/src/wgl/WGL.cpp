@@ -73,7 +73,6 @@ WGL::WGL()
 : error_(EGL_NOT_INITIALIZED)
 , tls_index_(0xffffffff)
 {
-    dpy_ = new WinDisplay(this, NULL);
     tls_index_ = TlsAlloc();
 }
 
@@ -81,8 +80,11 @@ WGL::~WGL()
 {
     TlsFree(tls_index_);
 
-    if (dpy_) {
-        delete dpy_;
+    std::vector<DisplayItem>::iterator iter = dpys_.begin();
+
+    while (iter != dpys_.end()) {
+        delete iter->dpy_;
+        ++iter;
     }
 }
 
@@ -109,11 +111,38 @@ void WGL::setError(EGLint error)
 EGLDisplay WGL::GetDisplay(
     EGLNativeDisplayType display_id)
 {
-    if (display_id == EGL_DEFAULT_DISPLAY) {
-        return dpy_;
-    } else {
-        return EGL_NO_DISPLAY;
+    std::vector<DisplayItem>::iterator iter = dpys_.begin();
+
+    while (iter != dpys_.end()) {
+        if (iter->hdc == display_id) {
+            return iter->dpy_;
+        }
+
+        ++iter;
     }
+
+    DisplayItem item = {
+        display_id,
+        new WinDisplay(this, (HDC)display_id),
+    };
+
+    dpys_.push_back(item);
+
+    return item.dpy_;
+}
+
+bool WGL::validate(EGLDisplay dpy)
+{
+    std::vector<DisplayItem>::const_iterator iter(dpys_.begin());
+
+    while (iter != dpys_.end()) {
+        if (iter->dpy_ == dpy) {
+            return true;
+        }
+
+        ++iter;
+    }
+    return false;
 }
 
 EGLBoolean WGL::Initialize(
@@ -121,12 +150,12 @@ EGLBoolean WGL::Initialize(
     EGLint *major,
     EGLint *minor)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
 
-    if (!dpy_->initialize()) {
+    if (!((WinDisplay*)dpy)->initialize()) {
         setError(EGL_NOT_INITIALIZED);
         return EGL_FALSE;
     }
@@ -147,12 +176,12 @@ EGLBoolean WGL::Terminate(EGLDisplay dpy)
 
 const char* WGL::QueryString(EGLDisplay dpy, EGLint name)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return 0;
     }
 
-    return dpy_->QueryString(name);
+    return ((WinDisplay*)dpy)->QueryString(name);
 }
 
 EGLBoolean WGL::GetConfigs(
@@ -161,12 +190,12 @@ EGLBoolean WGL::GetConfigs(
     EGLint config_size,
     EGLint *num_config)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
 
-    return dpy_->GetConfigs(configs, config_size, num_config);
+    return ((WinDisplay*)dpy)->GetConfigs(configs, config_size, num_config);
 }
 
 EGLBoolean WGL::ChooseConfig(
@@ -176,12 +205,12 @@ EGLBoolean WGL::ChooseConfig(
     EGLint config_size,
     EGLint *num_config)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
 
-    return dpy_->ChooseConfig(attrib_list, configs, config_size, num_config);
+    return ((WinDisplay*)dpy)->ChooseConfig(attrib_list, configs, config_size, num_config);
 }
 
 EGLBoolean WGL::GetConfigAttrib(
@@ -190,12 +219,12 @@ EGLBoolean WGL::GetConfigAttrib(
     EGLint attribute,
     EGLint *value)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
 
-    return dpy_->GetConfigAttrib(config, attribute, value);
+    return ((WinDisplay*)dpy)->GetConfigAttrib(config, attribute, value);
 }
 
 EGLSurface WGL::CreateWindowSurface(
@@ -204,12 +233,12 @@ EGLSurface WGL::CreateWindowSurface(
     EGLNativeWindowType win,
     const EGLint *attrib_list)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_NO_SURFACE;
     }
 
-    if (!dpy_->validate(config)) {
+    if (!((WinDisplay*)dpy)->validate(config)) {
         setError(EGL_BAD_CONFIG);
         return EGL_NO_SURFACE;
     }
@@ -221,7 +250,7 @@ EGLSurface WGL::CreateWindowSurface(
 
     WinSurface* surface = new WinSurface();
 
-    bool ret = surface->create(win, dpy_->getConfig(config), (int)config);
+    bool ret = surface->create(win, ((WinDisplay*)dpy)->getConfig(config), (int)config);
     if (!ret) {
         delete surface;
         setError(EGL_BAD_NATIVE_WINDOW);
@@ -252,7 +281,7 @@ EGLSurface WGL::CreatePixmapSurface(
 
 EGLBoolean WGL::DestroySurface(EGLDisplay dpy, EGLSurface surface)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
@@ -275,7 +304,7 @@ EGLBoolean WGL::QuerySurface(
     EGLint attribute,
     EGLint *value)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
@@ -380,12 +409,12 @@ EGLContext WGL::CreateContext(
     EGLContext share_context,
     const EGLint *attrib_list)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_NO_CONTEXT;
     }
 
-    if (!dpy_->validate(config)) {
+    if (!((WinDisplay*)dpy)->validate(config)) {
         setError(EGL_BAD_CONFIG);
         return EGL_NO_CONTEXT;
     }
@@ -407,14 +436,14 @@ EGLContext WGL::CreateContext(
         }
     }
 
-    WinContext* ctx = new WinContext(dpy_->getConfig(config), client_version);
+    WinContext* ctx = new WinContext(((WinDisplay*)dpy)->getConfig(config), client_version);
 
     return ctx;
 }
 
 EGLBoolean WGL::DestroyContext(EGLDisplay dpy, EGLContext ctx)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
@@ -437,7 +466,7 @@ EGLBoolean WGL::MakeCurrent(
     EGLSurface read,
     EGLContext ctx)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
@@ -508,7 +537,7 @@ EGLBoolean WGL::WaitNative(EGLint engine)
 
 EGLBoolean WGL::SwapBuffers(EGLDisplay dpy, EGLSurface surface)
 {
-    if (dpy != dpy_) {
+    if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
         return EGL_FALSE;
     }
