@@ -26,53 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CRATERIS_WGL_WIN_CONTEXT_H_INCLUDED_
-#define CRATERIS_WGL_WIN_CONTEXT_H_INCLUDED_
+#ifndef WGL_EXTENSIONS_H_INCLUDED_
+#define WGL_EXTENSIONS_H_INCLUDED_
 
-#include "WinSurface.h"
-
-namespace crateris {
-
-class WinGLES;
-class WinGLES2;
-class GLES;
-class GLES2;
-
-enum APIVersion
-{
-    API_OPENGL_ES_1_1 = 10,
-    API_OPENGL_ES_2_0 = 20,
-};
-
-class WinContext
-{
-public:
-    WinContext(const Config& config, int client_version);
-    ~WinContext();
-
-    bool Swap();
-
-    bool create(WinSurface* surface);
-
-    const Config& getConfig() { return config_; }
-    WinSurface* getSurface() { return surface_; }
-
-    GLES* getGLES();
-    GLES2* getGLES2();
-
-private:
-    WinContext(const WinContext&);
-    void operator=(const WinContext&);
-
-private:
-    WinSurface* surface_;
-    const Config& config_;
-    APIVersion api_version_;
-    WinGLES* gles_;
-    WinGLES2* gles2_;
-    HGLRC hglrc_;
-};
-
-}
+extern HGLRC crateris_createContext(HDC hdc, int es2_profile, int* valid_es2_profile);
 
 #endif

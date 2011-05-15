@@ -29,6 +29,7 @@
 #include "WinContext.h"
 #include "WinGLES.h"
 #include "WinGLES2.h"
+#include "Extensions.h"
 
 namespace crateris {
 
@@ -38,6 +39,7 @@ WinContext::WinContext(const Config& config, int client_version)
 , api_version_(API_OPENGL_ES_1_1)
 , gles_(0)
 , gles2_(0)
+, hglrc_(NULL)
 {
     if (client_version == 2) {
         api_version_ = API_OPENGL_ES_2_0;
@@ -52,6 +54,9 @@ WinContext::~WinContext()
     if (gles2_) {
         delete gles2_;
     }
+    if (hglrc_) {
+        wglDeleteContext(hglrc_);
+    }
 }
 
 bool WinContext::Swap()
@@ -65,34 +70,60 @@ bool WinContext::create(WinSurface* surface)
         return false;
 
     HDC hdc = surface->getHDC();
-    HGLRC hglrc = surface->getHGLRC();
 
-    if (!hdc || !hglrc)
+    if (!hdc)
         return false;
 
     surface_ = surface;
 
-    wglMakeCurrent(hdc, hglrc);
+    bool ret = false;
 
-    // Load API
-    if (gles_) {
-        delete gles_;
-        gles_ = 0;
-    }
-    if (gles2_) {
-        delete gles2_;
-        gles2_ = 0;
+    // Temporary
+    HGLRC temp_hglrc = wglCreateContext(hdc);
+
+    if (temp_hglrc) {
+
+        wglMakeCurrent(hdc, temp_hglrc);
+
+        HGLRC hglrc;
+        int valid_es2_profile = 0;
+        hglrc = crateris_createContext(hdc, api_version_ == API_OPENGL_ES_2_0, &valid_es2_profile);
+
+        if (hglrc) {
+            wglMakeCurrent(hdc, hglrc);
+
+            // Load API
+            if (gles_) {
+                delete gles_;
+                gles_ = 0;
+            }
+            if (gles2_) {
+                delete gles2_;
+                gles2_ = 0;
+            }
+
+            if (api_version_ == API_OPENGL_ES_1_1) {
+                gles_ = new WinGLES();
+                gles_->loadGLAPI();
+            } else if (api_version_ == API_OPENGL_ES_2_0) {
+                gles2_ = new WinGLES2();
+                gles2_->loadGLAPI(0 != valid_es2_profile);
+            }
+
+            if (hglrc_) {
+                wglDeleteContext(hglrc_);
+            }
+
+            hglrc_ = hglrc;
+            ret = true;
+        }
     }
 
-    if (api_version_ == API_OPENGL_ES_1_1) {
-        gles_ = new WinGLES();
-        gles_->loadGLAPI();
-    } else if (api_version_ == API_OPENGL_ES_2_0) {
-        gles2_ = new WinGLES2();
-        gles2_->loadGLAPI();
+    if (temp_hglrc) {
+        wglDeleteContext(temp_hglrc);
     }
 
-    return true;
+    return ret;
 }
 
 GLES* WinContext::getGLES()

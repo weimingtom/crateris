@@ -194,6 +194,10 @@
 				Name="wgl"
 				>
 				<File
+					RelativePath=".\wgl\Extensions.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wgl\WGL.cpp"
 					>
 				</File>
@@ -255,6 +259,10 @@
 					Name="wgl"
 					>
 					<File
+						RelativePath=".\wgl\Extensions.h"
+						>
+					</File>
+					<File
 						RelativePath=".\wgl\gl2api.inl"
 						>
 					</File>
@@ -264,6 +272,10 @@
 					</File>
 					<File
 						RelativePath=".\wgl\WGL.h"
+						>
+					</File>
+					<File
+						RelativePath=".\wgl\wglext.h"
 						>
 					</File>
 					<File

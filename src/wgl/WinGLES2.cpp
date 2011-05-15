@@ -32,30 +32,43 @@
 // typedef func
 #define DEF_GLAPI0(rettype, name, params)   typedef rettype (__stdcall *Func##name) params;
 #define DEF_GLAPI1(rettype, name, params)   DEF_GLAPI0(rettype, name, params)
+#define DEF_GLAPI2(rettype, name, params)   DEF_GLAPI0(rettype, name, params)
 #include "gl2api.inl" // Define
 #undef DEF_GLAPI0
 #undef DEF_GLAPI1
+#undef DEF_GLAPI2
 
-#define DEF_GLAPI0(rettype, name, params)   static Func##name proxy_gl##name = 0;
+typedef void (__stdcall *FuncClearDepth)(double depth);
+typedef void (__stdcall *FuncDepthRange)(double zNear, double zFar);
+
+struct FuncTable {
+#define DEF_GLAPI0(rettype, name, params)   Func##name proxy_gl##name;
 #define DEF_GLAPI1(rettype, name, params)   DEF_GLAPI0(rettype, name, params)
+#define DEF_GLAPI2(rettype, name, params)   DEF_GLAPI0(rettype, name, params)
 #include "gl2api.inl" // Define
 #undef DEF_GLAPI0
 #undef DEF_GLAPI1
+#undef DEF_GLAPI2
+    FuncClearDepth proxy_glClearDepth;
+    FuncDepthRange proxy_glDepthRange;
+};
 
-static FuncClearDepth proxy_glClearDepthf = 0;
-static FuncDepthRange proxy_glDepthRangef = 0;
 
 #define CALL(name, exp) \
-    ((proxy_gl##name) ? (proxy_gl##name exp) : (GLES2::name exp))
+    ((((FuncTable*)func_table_)->proxy_gl##name) ? (((FuncTable*)func_table_)->proxy_gl##name exp) : (GLES2::name exp))
 
 namespace crateris {
 
 WinGLES2::WinGLES2()
+: func_table_(0)
 {
 }
 
 WinGLES2::~WinGLES2()
 {
+    if (func_table_) {
+        free(func_table_);
+    }
 }
 
 static bool validate(void* func, const char* name)
@@ -68,28 +81,61 @@ static bool validate(void* func, const char* name)
     return func != 0;
 }
 
-bool WinGLES2::loadGLAPI()
-{
-    HMODULE mod = LoadLibraryA("opengl32.dll");
-    bool ret = true;
 
 #define DEF_GLAPI0(rettype, name, params)   \
-    proxy_gl##name = (Func##name)GetProcAddress(mod, "gl" #name); \
-    ret = validate(proxy_gl##name, "gl" #name) && ret;
+    ((FuncTable*)func_table_)->proxy_gl##name = (Func##name)GetProcAddress(mod, "gl" #name); \
+    ret = validate(((FuncTable*)func_table_)->proxy_gl##name, "gl" #name) && ret;
 
 #define DEF_GLAPI1(rettype, name, params)   \
-    proxy_gl##name = (Func##name)wglGetProcAddress("gl" #name); \
-    ret = validate(proxy_gl##name, "gl" #name) && ret;
+    ((FuncTable*)func_table_)->proxy_gl##name = (Func##name)wglGetProcAddress("gl" #name); \
+    ret = validate(((FuncTable*)func_table_)->proxy_gl##name, "gl" #name) && ret;
+
+bool WinGLES2::loadGLAPI(bool valid_es2_profile)
+{
+    bool ret = true;
+
+    func_table_ = malloc(sizeof(FuncTable));
+
+    if (!valid_es2_profile) {
+        HMODULE mod = LoadLibraryA("opengl32.dll");
+
+#define DEF_GLAPI2(rettype, name, params)   \
+    ((FuncTable*)func_table_)->proxy_gl##name = 0;
 
 #include "gl2api.inl"
 
-    proxy_glClearDepthf = proxy_glClearDepth;
-    proxy_glDepthRangef = proxy_glDepthRange;
+        if (!((FuncTable*)func_table_)->proxy_glClearDepthf) {
+            DEF_GLAPI0(void, ClearDepth, (double depth));
+        }
 
-    module_ = mod;
+        if (!((FuncTable*)func_table_)->proxy_glDepthRangef) {
+            DEF_GLAPI0(void, DepthRange, (double zNear, double zFar));
+        }
+
+#undef DEF_GLAPI2
+
+        module_ = mod;
+
+    } else {
+        HMODULE mod = LoadLibraryA("opengl32.dll");
+
+        ((FuncTable*)func_table_)->proxy_glClearDepth = 0;
+        ((FuncTable*)func_table_)->proxy_glDepthRange = 0;
+
+#define DEF_GLAPI2(rettype, name, params)   DEF_GLAPI1(rettype, name, params)
+
+#include "gl2api.inl"
+
+#undef DEF_GLAPI2
+
+        module_ = mod;
+    }
 
     return ret;
 }
+
+#undef DEF_GLAPI0
+#undef DEF_GLAPI1
 
 void WinGLES2::ActiveTexture(GLenum texture)
 {
@@ -178,7 +224,11 @@ void WinGLES2::ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf 
 
 void WinGLES2::ClearDepthf(GLclampf depth)
 {
-    CALL(ClearDepthf, (depth));
+    if (((FuncTable*)func_table_)->proxy_glClearDepthf) {
+        CALL(ClearDepthf, (depth));
+    } else {
+        CALL(ClearDepth, (depth));
+    }
 }
 
 void WinGLES2::ClearStencil(GLint s)
@@ -273,7 +323,11 @@ void WinGLES2::DepthMask(GLboolean flag)
 
 void WinGLES2::DepthRangef(GLclampf zNear, GLclampf zFar)
 {
-    CALL(DepthRangef, (zNear, zFar));
+    if (((FuncTable*)func_table_)->proxy_glDepthRangef) {
+        CALL(DepthRangef, (zNear, zFar));
+    } else {
+        CALL(DepthRange, (zNear, zFar));
+    }
 }
 
 void WinGLES2::DetachShader(GLuint program, GLuint shader)
@@ -802,3 +856,4 @@ void WinGLES2::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 }
 
 }
+

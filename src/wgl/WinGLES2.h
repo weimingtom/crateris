@@ -41,7 +41,7 @@ public:
     WinGLES2();
     virtual ~WinGLES2();
 
-    bool loadGLAPI();
+    bool loadGLAPI(bool valid_es2_profile);
 
     virtual void ActiveTexture(GLenum texture);
     virtual void AttachShader(GLuint program, GLuint shader);
@@ -188,6 +188,7 @@ public:
 
 private:
     HMODULE module_;
+    void* func_table_;
 };
 
 }
