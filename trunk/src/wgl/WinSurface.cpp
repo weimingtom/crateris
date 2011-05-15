@@ -27,6 +27,7 @@
  */
 
 #include "WinSurface.h"
+#include "Extensions.h"
 
 namespace crateris {
 
@@ -39,10 +40,6 @@ WinSurface::WinSurface()
 
 WinSurface::~WinSurface()
 {
-    if (hglrc_) {
-        wglDeleteContext(hglrc_);
-    }
-
     if (hdc_) {
         ReleaseDC(hwnd_, hdc_);
     }
@@ -60,17 +57,12 @@ bool WinSurface::create(HWND win, const Config& config, int config_id)
     if (FALSE == SetPixelFormat(dc, config.index_, &config.desc_))
         return false;
 
-    if (hglrc_) {
-        wglDeleteContext(hglrc_);
-    }
-
     if (hdc_) {
         ReleaseDC(hwnd_, hdc_);
     }
 
     hwnd_ = win;
     hdc_ = dc;
-    hglrc_ = wglCreateContext(dc);
     config_id_ = config_id;
 
     return true;

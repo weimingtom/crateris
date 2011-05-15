@@ -40,6 +40,16 @@ GLES2::~GLES2()
 {
 }
 
+void GLES2::ClearDepth(double depth)
+{
+    NO_IMPL();
+}
+
+void GLES2::DepthRange(double zNear, double zFar)
+{
+    NO_IMPL();
+}
+
 void GLES2::ActiveTexture(GLenum texture)
 {
     NO_IMPL();
