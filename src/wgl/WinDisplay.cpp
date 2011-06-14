@@ -64,6 +64,7 @@ const Config& WinDisplay::getConfig(EGLConfig config)
 
 const char * WinDisplay::QueryString(EGLint name)
 {
+    (void)name;
     return 0;
 }
 
