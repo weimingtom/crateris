@@ -227,7 +227,11 @@ void WinGLES2::ClearDepthf(GLclampf depth)
     if (((FuncTable*)func_table_)->proxy_glClearDepthf) {
         CALL(ClearDepthf, (depth));
     } else {
-        CALL(ClearDepth, (depth));
+        if (((FuncTable*)func_table_)->proxy_glClearDepth) {
+            ((FuncTable*)func_table_)->proxy_glClearDepth(depth);
+        } else {
+            GLES2::ClearDepthf(depth);
+        }
     }
 }
 
@@ -326,7 +330,11 @@ void WinGLES2::DepthRangef(GLclampf zNear, GLclampf zFar)
     if (((FuncTable*)func_table_)->proxy_glDepthRangef) {
         CALL(DepthRangef, (zNear, zFar));
     } else {
-        CALL(DepthRange, (zNear, zFar));
+        if (((FuncTable*)func_table_)->proxy_glDepthRange) {
+            ((FuncTable*)func_table_)->proxy_glDepthRange(zNear, zFar);
+        } else {
+            GLES2::DepthRangef(zNear, zFar);
+        }
     }
 }
 

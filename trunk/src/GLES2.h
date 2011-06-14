@@ -182,9 +182,6 @@ public:
 protected:
     GLES2();
     virtual ~GLES2() = 0;
-
-    void ClearDepth(double depth);
-    void DepthRange(double zNear, double zFar);
 };
 
 }

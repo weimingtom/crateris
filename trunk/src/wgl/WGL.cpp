@@ -169,7 +169,7 @@ EGLBoolean WGL::Initialize(
     return EGL_TRUE;
 }
 
-EGLBoolean WGL::Terminate(EGLDisplay dpy)
+EGLBoolean WGL::Terminate(EGLDisplay /*dpy*/)
 {
     return EGL_TRUE;
 }
@@ -231,7 +231,7 @@ EGLSurface WGL::CreateWindowSurface(
     EGLDisplay dpy,
     EGLConfig config,
     EGLNativeWindowType win,
-    const EGLint *attrib_list)
+    const EGLint * /*attrib_list*/)
 {
     if (!validate(dpy)) {
         setError(EGL_BAD_DISPLAY);
@@ -261,19 +261,19 @@ EGLSurface WGL::CreateWindowSurface(
 }
 
 EGLSurface WGL::CreatePbufferSurface(
-    EGLDisplay dpy,
-    EGLConfig config,
-    const EGLint *attrib_list)
+    EGLDisplay /*dpy*/,
+    EGLConfig /*config*/,
+    const EGLint * /*attrib_list*/)
 {
     NO_IMPL();
     return EGL_NO_SURFACE;
 }
 
 EGLSurface WGL::CreatePixmapSurface(
-    EGLDisplay dpy,
-    EGLConfig config,
-    EGLNativePixmapType pixmap,
-    const EGLint *attrib_list)
+    EGLDisplay /*dpy*/,
+    EGLConfig /*config*/,
+    EGLNativePixmapType /*pixmap*/,
+    const EGLint * /*attrib_list*/)
 {
     NO_IMPL();
     return EGL_NO_SURFACE;
@@ -365,39 +365,39 @@ EGLBoolean WGL::ReleaseThread(void)
 }
 
 EGLSurface WGL::CreatePbufferFromClientBuffer(
-    EGLDisplay dpy,
-    EGLenum buftype,
-    EGLClientBuffer buffer,
-    EGLConfig config,
-    const EGLint *attrib_list)
+    EGLDisplay /*dpy*/,
+    EGLenum /*buftype*/,
+    EGLClientBuffer /*buffer*/,
+    EGLConfig /*config*/,
+    const EGLint * /*attrib_list*/)
 {
     NO_IMPL();
     return EGL_NO_SURFACE;
 }
 
 EGLBoolean WGL::SurfaceAttrib(
-    EGLDisplay dpy,
-    EGLSurface surface,
-    EGLint attribute,
-    EGLint value)
+    EGLDisplay /*dpy*/,
+    EGLSurface /*surface*/,
+    EGLint /*attribute*/,
+    EGLint /*value*/)
 {
     NO_IMPL();
     return EGL_FALSE;
 }
 
-EGLBoolean WGL::BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
+EGLBoolean WGL::BindTexImage(EGLDisplay /*dpy*/, EGLSurface /*surface*/, EGLint /*buffer*/)
 {
     NO_IMPL();
     return EGL_FALSE;
 }
 
-EGLBoolean WGL::ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
+EGLBoolean WGL::ReleaseTexImage(EGLDisplay /*dpy*/, EGLSurface /*surface*/, EGLint /*buffer*/)
 {
     NO_IMPL();
     return EGL_FALSE;
 }
 
-EGLBoolean WGL::SwapInterval(EGLDisplay dpy, EGLint interval)
+EGLBoolean WGL::SwapInterval(EGLDisplay /*dpy*/, EGLint /*interval*/)
 {
     NO_IMPL();
     return EGL_FALSE;
@@ -406,7 +406,7 @@ EGLBoolean WGL::SwapInterval(EGLDisplay dpy, EGLint interval)
 EGLContext WGL::CreateContext(
     EGLDisplay dpy,
     EGLConfig config,
-    EGLContext share_context,
+    EGLContext /*share_context*/,
     const EGLint *attrib_list)
 {
     if (!validate(dpy)) {
@@ -497,7 +497,7 @@ EGLContext WGL::GetCurrentContext(void)
     return getCurrentContext();
 }
 
-EGLSurface WGL::GetCurrentSurface(EGLint readdraw)
+EGLSurface WGL::GetCurrentSurface(EGLint /*readdraw*/)
 {
     WinContext* ctx = getCurrentContext();
     if (!ctx) {
@@ -514,10 +514,10 @@ EGLDisplay WGL::GetCurrentDisplay(void)
 }
 
 EGLBoolean WGL::QueryContext(
-    EGLDisplay dpy,
-    EGLContext ctx,
-    EGLint attribute,
-    EGLint *value)
+    EGLDisplay /*dpy*/,
+    EGLContext /*ctx*/,
+    EGLint /*attribute*/,
+    EGLint * /*value*/)
 {
     NO_IMPL();
     return EGL_FALSE;
@@ -529,7 +529,7 @@ EGLBoolean WGL::WaitGL(void)
     return EGL_FALSE;
 }
 
-EGLBoolean WGL::WaitNative(EGLint engine)
+EGLBoolean WGL::WaitNative(EGLint /*engine*/)
 {
     NO_IMPL();
     return EGL_FALSE;
@@ -555,9 +555,9 @@ EGLBoolean WGL::SwapBuffers(EGLDisplay dpy, EGLSurface surface)
 }
 
 EGLBoolean WGL::CopyBuffers(
-    EGLDisplay dpy,
-    EGLSurface surface,
-    EGLNativePixmapType target)
+    EGLDisplay /*dpy*/,
+    EGLSurface /*surface*/,
+    EGLNativePixmapType /*target*/)
 {
     NO_IMPL();
     return EGL_FALSE;
