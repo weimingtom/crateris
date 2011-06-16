@@ -70,7 +70,7 @@ CR_API crateris::EGL* crateris_get_EGL()
 namespace crateris {
 
 WGL::WGL()
-: error_(EGL_NOT_INITIALIZED)
+: error_(EGL_SUCCESS)
 , tls_index_(0xffffffff)
 {
     tls_index_ = TlsAlloc();
