@@ -27,6 +27,7 @@
  */
 
 #define GL_API extern "C" __declspec(dllexport)
+#define GL_APIENTRY __stdcall
 #include "EGL.h"
 #include "GLES.h"
 
